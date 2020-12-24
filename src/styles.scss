@@ -1,0 +1,7 @@
+@import "~bulma/sass/utilities/initial-variables.sass";
+$navbar-breakpoint: $gap;
+@import "~bulma/bulma.sass";
+
+body {
+    font-family: sans-serif;
+}

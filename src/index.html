@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html class="has-navbar-fixed-top">
+  <head>
+    <title>Time Tracker</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+
+  <body>
+    <nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+      <div class="navbar-brand">
+        <a class="navbar-item">
+          <h1 class="subtitle">Time Tracker ⏱</h1>
+        </a>
+      </div>
+      <div id="navbar" class="navbar-menu">
+        <div class="navbar-end">
+          <div class="navbar-item">
+              <a class="button is-primary" hx-get="/ui/createTimer" hx-target="#modal">
+                <strong>New Timer</strong>
+                <span class="icon">
+                  ➕
+                </span>
+              </a>
+            </div>
+          </div>
+      </div>
+    </nav>
+    <div id="modal"></div>
+    <section class="hero is-primary">
+      <div class="hero-body">
+        <div class="container is-max-desktop">
+          <h1 class="title">
+            Time Tracker ⏱
+          </h1>
+          <h2 class="subtitle">
+            This is a project to manage your tasks with bulma with react.
+          </h2>
+        </div>
+        <div id="active-timer" hx-get="/timers/active" hx-trigger="load"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container is-max-desktop">
+        <div class="columns is-multiline" id="all-timers" hx-get="/timers" hx-trigger="load"></div>
+      </div>
+    </section>
+
+    <script src="./index.ts"></script>
+  </body>
+</html>
