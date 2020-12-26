@@ -1,25 +1,28 @@
+import "store2";
+import "nanoid";
+import { nanoid } from "nanoid";
+import * as store from "store2";
+
+const timerdb = store.namespace("timers");
+
 export interface Timer {
-  id: number;
+  id: string;
   title: string;
   activatedAt: Date;
 }
 
 export function addTimer(timer: Timer) {
-  let timers = listTimers();
-  timer.id = Date.now();
-  timers.push(<Timer>timer);
-  window.localStorage.setItem("timers", JSON.stringify(timers));
+  timer.id = nanoid(10);
+  timerdb.add(timer.id, timer);
 }
 
-export function removeTimer(id: number) {
-  let timers = listTimers();
-  timers = timers.filter((timer) => timer.id != id);
-  window.localStorage.setItem("timers", JSON.stringify(timers));
+export function removeTimer(id: string) {
+  timerdb.remove(id);
 }
 
 export function getActiveTimer(): Timer | null {
-  let timers = listTimers();
-  for (const timer of timers) {
+  let timers = timerdb.getAll();
+  for (const [id, timer] of Object.entries(timers)) {
     if (timer.activatedAt) {
       return timer;
     }
@@ -27,36 +30,27 @@ export function getActiveTimer(): Timer | null {
 }
 
 export function listTimers(): Timer[] {
-  const timers = <Timer[]>JSON.parse(window.localStorage.getItem("timers"));
-  if (timers) {
-    return timers;
-  }
-  return [];
+  let timers = [];
+  timerdb.each((_, timer) => {
+    timers.push(timer);
+  });
+  return timers;
 }
 
-export function startTimer(id: number) {
-  let timers = listTimers();
-  timers = timers.map((timer) => {
-    if (timer.id == id) {
-      timer.activatedAt = new Date();
-      return timer;
-    }
-
+export function startTimer(id: string) {
+  timerdb.each((id, timer) => {
     if (timer.activatedAt) {
       timer.activatedAt = null;
     }
-    return timer;
+    timerdb.set(id, timer);
   });
-  window.localStorage.setItem("timers", JSON.stringify(timers));
+  timerdb.transact(id, (timer) => {
+    timer.activatedAt = new Date();
+  });
 }
 
-export function stopTimer(id: number) {
-  let timers = listTimers();
-  timers = timers.map((timer) => {
-    if (timer.id == id) {
-      timer.activatedAt = null;
-    }
-    return timer;
+export function stopTimer(id: string) {
+  timerdb.transact(id, (timer) => {
+    timer.activatedAt = null;
   });
-  window.localStorage.setItem("timers", JSON.stringify(timers));
 }

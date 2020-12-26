@@ -1,7 +1,6 @@
 // import {faStopwatch} from "@fortawesome/fontawesome-free";
 import "./styles.scss";
 import "htmx.org/dist/htmx.js";
-import "./burger-toggles";
 import { fakeServer } from "nise";
 import {
   Timer,
