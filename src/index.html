@@ -30,14 +30,20 @@
     <section class="hero is-primary">
       <div class="hero-body">
         <div class="container is-max-desktop">
-          <h1 class="title">
-            Time Tracker ⏱
-          </h1>
-          <h2 class="subtitle">
-            This is a project to manage your tasks with bulma with react.
-          </h2>
+          <div class="columns is-vcentered">
+            <div class="column is-two-thirds">
+              <h1 class="title">
+                Time Tracker ⏱
+              </h1>
+              <h2 class="subtitle">
+                This is a project to manage your tasks with bulma with react.
+              </h2>
+            </div>
+            <div class="column is-one-third">
+              <div id="active-timer" hx-get="/timers/active" hx-trigger="load"></div>
+            </div>
+          </div>
         </div>
-        <div id="active-timer" hx-get="/timers/active" hx-trigger="load"></div>
       </div>
     </section>
 

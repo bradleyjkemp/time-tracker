@@ -90,14 +90,28 @@ server.respondWith("GET", "/ui/createTimer", (xhr) => {
 });
 
 function renderActiveTimer() {
-  const timers = listTimers();
-
-  // @ts-ignore
-  const active = getActiveTimer();
-  if (!active) {
-    return `<div id="active-timer" hx-swap-oob="true"><p>No Active Timers</p></div>`;
+  const timer = getActiveTimer();
+  if (!timer) {
+    return `<div id="active-timer" hx-swap-oob="true"></div>`;
   }
-  return `<div id="active-timer" hx-swap-oob="true"><p>Active Timer: ${active.title}</p></div>`;
+
+  return `<div id="active-timer" hx-swap-oob="true">
+          <div class="card">
+            <header class="card-header">
+              <div class="card-header-title">
+                <span class="tag is-light">#2</span>
+                ${timer.title}
+              </div>
+            </header>
+            <footer class="card-footer">
+              <div class="card-footer-item">
+                <button type = "button" class="button is-danger" hx-post="/timers/${timer.id}/stop">
+                    Stop
+                </button>
+              </div>
+            </footer>
+        </div>
+</div>`;
 }
 
 function renderAllTimers() {
@@ -116,22 +130,24 @@ function renderAllTimers() {
                 <span class="tag is-light">#2</span>
                 ${timer.title}
               </div>
-              <a hx-delete="/timers/${timer.id}" hx-target="#timer-${
-      timer.id
-    }" hx-swap="outerHTML" class="card-header-icon" aria-label="more options">
+              ${
+                (!timer.activatedAt &&
+                  `<a hx-delete="/timers/${timer.id}" hx-target="#timer-${timer.id}" hx-swap="outerHTML" class="card-header-icon" aria-label="more options">
                 <span class="icon">
                   <button type="button" class="delete"></button>
                 </span>
-              </a>
+              </a>`) ||
+                ""
+              }
             </header>
             <footer class="card-footer">
               <div class="card-footer-item">
               ${
                 (timer.activatedAt &&
-                  `<button type = "button" class="button is-danger is-outlined" hx-post="/timers/${timer.id}/stop">
+                  `<button type = "button" class="button is-danger" hx-post="/timers/${timer.id}/stop">
                     Stop
                 </button>`) ||
-                `<button type = "button" class="button is-primary is-outlined" hx-post="/timers/${timer.id}/start">
+                `<button type = "button" class="button is-primary" hx-post="/timers/${timer.id}/start">
                     Start
                 </button>`
               }
