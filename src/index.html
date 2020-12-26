@@ -31,7 +31,7 @@
       <div class="hero-body">
         <div class="container is-max-desktop">
           <div class="columns is-vcentered">
-            <div class="column is-two-thirds">
+            <div class="column is-one-third">
               <h1 class="title">
                 Time Tracker ⏱
               </h1>
@@ -39,9 +39,7 @@
                 This is a project to manage your tasks with bulma with react.
               </h2>
             </div>
-            <div class="column is-one-third">
-              <div id="active-timer" hx-get="/timers/active" hx-trigger="load"></div>
-            </div>
+            <div id="active-timer" class="column is-two-thirds" hx-get="/timers/active" hx-trigger="load"></div>
           </div>
         </div>
       </div>

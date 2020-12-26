@@ -16,16 +16,15 @@ let server = fakeServer.create();
 server.respondImmediately = true; // we want all requests to be responded to immediately (not batched or delayed)
 
 // @ts-ignore
-window.htmx.logAll();
+// window.htmx.logAll();
 
 server.respondWith("PUT", "/timers", function (xhr) {
-  console.log(xhr);
   const newTimer = {};
   const submitted = new URLSearchParams(xhr.requestBody);
   submitted.forEach((value, key) => (newTimer[key] = value));
 
   addTimer(<Timer>newTimer);
-  return xhr.respond(200, {}, renderAllTimers());
+  return xhr.respond(200, {}, `<div></div>` + renderAllTimers());
 });
 
 server.respondWith("GET", "/timers/active", (xhr) => {
@@ -69,20 +68,20 @@ server.respondWith("GET", "/ui/createTimer", (xhr) => {
       <p class="modal-card-title">New Timer</p>
       <button class="delete" hx-get="/ui/empty"></button>
     </header>
-    <section class="modal-card-body">
-        <div class="field">
-          <label class="label">Name</label>
-          <div class="control">
-          <form hx-put="/timers"">
-            <input class="input" name="title" type="text" placeholder="Name for your new timer" autofocus>
-            <input type="submit" hidden>
-          </form>
+    <form hx-put="/timers"">
+      <section class="modal-card-body">
+          <div class="field">
+            <label class="label">Name</label>
+            <div class="control">
+              <input class="input" name="title" type="text" placeholder="Name for your new timer" autofocus>
+              <input type="submit" hidden>
+            </div>
           </div>
-        </div>
-    </section>
-    <footer class="modal-card-foot">
-      <a class="button is-success is-fullwidth">Start Timer</a>
-    </footer>
+      </section>
+      <footer class="modal-card-foot">
+        <button type="submit" class="button is-success is-fullwidth">Create Timer</input>
+      </footer>
+    </form>
   </div>
 </div>
 `
@@ -92,32 +91,69 @@ server.respondWith("GET", "/ui/createTimer", (xhr) => {
 function renderActiveTimer() {
   const timer = getActiveTimer();
   if (!timer) {
-    return `<div id="active-timer" hx-swap-oob="true"></div>`;
-  }
-
-  return `<div id="active-timer" hx-swap-oob="true">
-          <div class="card">
-            <header class="card-header">
-              <div class="card-header-title">
-                <span class="tag is-light">#2</span>
-                ${timer.title}
-              </div>
-            </header>
-            <footer class="card-footer">
-              <div class="card-footer-item">
-                <button type = "button" class="button is-danger" hx-post="/timers/${timer.id}/stop">
-                    Stop
-                </button>
-              </div>
-            </footer>
+    return `<div id="active-timer" class="column is-two-thirds" hx-swap-oob="true">
+            <div class="card">
+                <header class="card-header">
+                  <div class="card-header-title">
+                    No active timer
+                  </div>
+                </header>
+                <footer class="card-footer">
+                  <div class="card-footer-item">
+                    <button type="button" class="button is-primary" hx-get="/ui/createTimer" hx-target="#modal">
+                        New Timer ➕
+                    </button>
+                  </div>
+                </footer>
+            </div>
         </div>
+</div>`;
+  }
+  const duration = (Date.now() - timer.activatedAt) / 1000;
+  const minutes = Math.floor(duration / 60);
+  const seconds = Math.floor(duration % 60);
+  return `
+<div id="active-timer" class="column is-two-thirds" hx-swap-oob="true">
+  <div class="columns">
+    <div class="column">
+      <div class="card">
+        <header class="card-header">
+          <div class="card-header-title">
+            Timer Duration
+          </div>
+        </header>
+        <div class="card-content" hx-get="/timers/active" hx-trigger="every 1s">
+           ${minutes}m ${seconds}s
+        </div>
+      </div>
+    </div>
+    <div class="column">
+      <div class="card">
+        <header class="card-header">
+          <div class="card-header-title">
+            <span class="tag is-light">#2</span>
+            ${timer.title}
+          </div>
+        </header>
+        <footer class="card-footer">
+          <div class="card-footer-item">
+            <button type = "button" class="button is-danger" hx-post="/timers/${timer.id}/stop">
+                Stop
+            </button>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </div>
 </div>`;
 }
 
 function renderAllTimers() {
-  const timers = listTimers();
+  const timers = listTimers().sort(
+    (a, b) => b.activationCount - a.activationCount
+  );
   if (!timers) {
-    return "";
+    return `<div id="all-timers" class="columns is-multiline" hx-swap-oob="true"></div>`;
   }
 
   let body = `<div id="all-timers" class="columns is-multiline" hx-swap-oob="true">`;

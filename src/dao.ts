@@ -8,7 +8,8 @@ const timerdb = store.namespace("timers");
 export interface Timer {
   id: string;
   title: string;
-  activatedAt: Date;
+  activationCount: number;
+  activatedAt: number;
 }
 
 export function addTimer(timer: Timer) {
@@ -22,6 +23,7 @@ export function removeTimer(id: string) {
 
 export function getActiveTimer(): Timer | null {
   let timers = timerdb.getAll();
+  // @ts-ignore
   for (const [id, timer] of Object.entries(timers)) {
     if (timer.activatedAt) {
       return timer;
@@ -44,8 +46,9 @@ export function startTimer(id: string) {
     }
     timerdb.set(id, timer);
   });
-  timerdb.transact(id, (timer) => {
-    timer.activatedAt = new Date();
+  timerdb.transact(id, (timer: Timer) => {
+    timer.activatedAt = Date.now();
+    timer.activationCount++;
   });
 }
 
