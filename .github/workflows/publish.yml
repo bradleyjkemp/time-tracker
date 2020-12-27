@@ -18,7 +18,10 @@ jobs:
 
       - name: Build
         run: yarn build-prod
-      
+
+      - name: Setup CNAME
+        run: cp CNAME dist/ # Make sure the CNAME file ends up on the gh-pages branch
+
       - name: Deploy to GitHub Pages
         if: success()
         uses: crazy-max/ghaction-github-pages@v2
