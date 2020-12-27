@@ -1,6 +1,7 @@
 // import {faStopwatch} from "@fortawesome/fontawesome-free";
 import "./styles.scss";
 import "htmx.org/dist/htmx.js";
+import "./burger-toggles";
 import { fakeServer } from "nise";
 import {
   Timer,
@@ -47,10 +48,46 @@ server.respondWith("POST", "/timers/:id/start", function (xhr, id) {
 });
 
 server.respondWith("POST", "/timers/:id/stop", function (xhr, id) {
+  const timer = getActiveTimer();
   stopTimer(id);
+
+  const format = (d: Date) =>
+    `${d.getUTCFullYear()}${
+      d.getUTCMonth() + 1 // JavaScript, wtf is wrong with you?
+    }${d.getUTCDate()}T${d.getUTCHours()}${d.getUTCMinutes()}${d.getUTCSeconds()}Z`;
+
+  const activated = new Date(timer.activatedAt);
+  const stopped = new Date();
+  const event = window.open(
+    `https://calendar.google.com/calendar/u/0/r/eventedit?text=${
+      timer.title
+    }&dates=${format(activated)}/${format(stopped)}`,
+    "createevent",
+    "directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0,scrollbars=no,resizable=no,width=800,height=400"
+  );
+  console.log("Created event");
+  console.log(event.length);
+  waitForEvent(event);
 
   return xhr.respond(200, {}, renderActiveTimer() + renderAllTimers());
 });
+
+function waitForEvent(calendar: Window) {
+  // This is super brittle but equals the number of iframes in a Calendar window
+  // after the user has clicked the "create event" button
+  const eventDone = 6;
+  const id = setInterval(() => {
+    if (calendar.closed) {
+      // user closed the popup
+      clearInterval(id);
+      return;
+    }
+    if (calendar.length == eventDone) {
+      calendar.close();
+      clearInterval(id);
+    }
+  }, 100);
+}
 
 server.respondWith("GET", "/ui/empty", (xhr) => {
   return xhr.respond(200, {}, "");
