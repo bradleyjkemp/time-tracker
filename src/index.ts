@@ -214,7 +214,7 @@ function renderAllTimers() {
               </div>
               ${
                 (!timer.activatedAt &&
-                  `<a hx-delete="/timers/${timer.id}" hx-target="#timer-${timer.id}" hx-swap="outerHTML" class="card-header-icon" aria-label="more options">
+                  `<a hx-delete="/timers/${timer.id}" hx-target="#timer-${timer.id}" hx-swap="outerHTML" hx-confirm="Delete '${timer.title}'?" class="card-header-icon" aria-label="more options">
                 <span class="icon">
                   <button type="button" class="delete"></button>
                 </span>
