@@ -58,23 +58,36 @@ server.respondWith("POST", "/timers/:id/stop", function (xhr, id) {
   const timer = getActiveTimer();
   stopTimer(id);
 
+  const pad = (n: number) => n.toString(10).padStart(2, "0");
   const format = (d: Date) =>
     `${d.getUTCFullYear()}${
-      d.getUTCMonth() + 1 // JavaScript, wtf is wrong with you?
-    }${d.getUTCDate()}T${d.getUTCHours()}${d.getUTCMinutes()}${d.getUTCSeconds()}Z`;
+      pad(d.getUTCMonth() + 1) // JavaScript, wtf is wrong with you?
+    }${pad(d.getUTCDate())}T${pad(d.getUTCHours())}${pad(
+      d.getUTCMinutes()
+    )}${pad(d.getUTCSeconds())}Z`;
 
   const activated = new Date(timer.activatedAt);
   const stopped = new Date();
-  const event = window.open(
-    `https://www.google.com/calendar/render?action=TEMPLATE&text=${
-      timer.title
-    }&dates=${format(activated)}/${format(stopped)}`,
-    "createevent",
-    "directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0,scrollbars=no,resizable=no,width=800,height=400"
-  );
-  console.log("Created event");
-  console.log(event.length);
-  waitForEvent(event);
+  const url = `https://www.google.com/calendar/render?action=TEMPLATE&text=${
+    timer.title
+  }&dates=${format(activated)}/${format(stopped)}`;
+  if (
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+  ) {
+    // assign URL directly to prevent a double window animation (i.e. one to open google.com/calendar and a second where the calendar app takes over)
+    window.location.assign(url);
+  } else {
+    const e = window.open(
+      url,
+      "createevent",
+      "directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0,scrollbars=no,resizable=no,width=800,height=400"
+    );
+    console.log("Created event");
+    console.log(e.length);
+    waitForEvent(e);
+  }
 
   return xhr.respond(200, {}, renderActiveTimer() + renderAllTimers());
 });
