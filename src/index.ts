@@ -19,6 +19,13 @@ server.respondImmediately = true; // we want all requests to be responded to imm
 // @ts-ignore
 // window.htmx.logAll();
 
+window.addEventListener("load", () => {
+  if ("serviceWorker" in navigator) {
+    const foo = "sw.js";
+    navigator.serviceWorker.register(foo);
+  }
+});
+
 server.respondWith("PUT", "/timers", function (xhr) {
   const newTimer = {};
   const submitted = new URLSearchParams(xhr.requestBody);
