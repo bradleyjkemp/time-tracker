@@ -75,14 +75,16 @@ server.respondWith("POST", "/timers/:id/stop", function (xhr, id) {
 function waitForEvent(calendar: Window) {
   // This is super brittle but equals the number of iframes in a Calendar window
   // after the user has clicked the "create event" button
-  const eventDone = 6;
+  const eventDone = 7;
+
   const id = setInterval(() => {
     if (calendar.closed) {
-      // user closed the popup
+      // user closed the popup themselves
       clearInterval(id);
       return;
     }
     if (calendar.length == eventDone) {
+      // we think the user has clicked the "create event" button and so we should close the popup for them
       calendar.close();
       clearInterval(id);
     }
