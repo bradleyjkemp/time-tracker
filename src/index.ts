@@ -66,7 +66,7 @@ server.respondWith("POST", "/timers/:id/stop", function (xhr, id) {
   const activated = new Date(timer.activatedAt);
   const stopped = new Date();
   const event = window.open(
-    `https://calendar.google.com/calendar/u/0/r/eventedit?text=${
+    `https://www.google.com/calendar/render?action=TEMPLATE&text=${
       timer.title
     }&dates=${format(activated)}/${format(stopped)}`,
     "createevent",
