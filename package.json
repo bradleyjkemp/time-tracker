@@ -13,6 +13,8 @@
     "htmx.org": "^1.0.2",
     "nanoid": "^3.1.20",
     "nise": "^4.0.4",
+    "preact": ">=10",
+    "preact-render-to-string": "^5.1.12",
     "store2": "^2.12.0"
   },
   "devDependencies": {
