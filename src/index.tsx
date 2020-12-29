@@ -87,8 +87,6 @@ server.respondWith("POST", "/timers/:id/stop", function (xhr, id) {
       "createevent",
       "directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0,scrollbars=no,resizable=no,width=800,height=400"
     );
-    console.log("Created event");
-    console.log(e.length);
     waitForEvent(e);
   }
 
@@ -140,8 +138,8 @@ server.respondWith("GET", "/ui/createTimer", (xhr) => {
                   type="text"
                   placeholder="Name for your new timer"
                   autofocus
-                ></input>
-                <input type="submit" hidden></input>
+                />
+                <input type="submit" hidden />
               </div>
             </div>
           </section>

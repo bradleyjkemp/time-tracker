@@ -11,5 +11,5 @@ export function createElement(
       else return `${key}="${value}"`;
     })
     .join(" ");
-  return `<${name} ${propsstr}> ${content.join("")}</${name}>`;
+  return `<${name} ${propsstr}> ${content.flat().join("")}</${name}>`;
 }
