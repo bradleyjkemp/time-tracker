@@ -28,7 +28,7 @@
   },
   "resolutions": {
     "//comment": "npm:this-is-a-stupid-hack-to-remove-a-large-unnecessary-dependency",
-    "@sinonjs/text-encoding": "npm:user-home"
+    "@sinonjs/text-encoding": "npm:is-number"
   },
   "cache": {
     "inDev": true
