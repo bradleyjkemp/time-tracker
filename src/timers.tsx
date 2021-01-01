@@ -11,7 +11,8 @@ import {
   stopTimer,
   Timer,
 } from "./dao";
-import { TimerCard } from "./components/timers/TimerCard";
+import { TimerList } from "./components/timers/TimerList";
+import { ActiveTimer } from "./components/timers/ActiveTimer";
 
 server.respondWith("PUT", "/timers", function (xhr) {
   const newTimer = {};
@@ -19,15 +20,19 @@ server.respondWith("PUT", "/timers", function (xhr) {
   submitted.forEach((value, key) => (newTimer[key] = value));
 
   addTimer(newTimer as Timer);
-  return xhr.respond(200, {}, `<div></div>` + renderAllTimers());
+  return xhr.respond(
+    200,
+    {},
+    `<div></div>` + render(<TimerList timers={listTimers()} />)
+  );
 });
 
 server.respondWith("GET", "/timers/active", (xhr) => {
-  return xhr.respond(200, {}, render(renderActiveTimer()));
+  return xhr.respond(200, {}, render(<ActiveTimer timer={getActiveTimer()} />));
 });
 
 server.respondWith("GET", "/timers", (xhr) => {
-  return xhr.respond(200, {}, render(renderAllTimers()));
+  return xhr.respond(200, {}, render(<TimerList timers={listTimers()} />));
 });
 
 server.respondWith("DELETE", "/timers/:id", function (xhr, id) {
@@ -41,7 +46,8 @@ server.respondWith("POST", "/timers/:id/start", function (xhr, id) {
   return xhr.respond(
     200,
     {},
-    render(renderActiveTimer()) + render(renderAllTimers())
+    render(<ActiveTimer timer={getActiveTimer()} />) +
+      render(<TimerList timers={listTimers()} />)
   );
 });
 
@@ -81,7 +87,8 @@ server.respondWith("POST", "/timers/:id/stop", function (xhr, id) {
   return xhr.respond(
     200,
     {},
-    render(renderActiveTimer()) + render(renderAllTimers())
+    render(<ActiveTimer timer={getActiveTimer()} />) +
+      render(<TimerList timers={listTimers()} />)
   );
 });
 
@@ -102,125 +109,4 @@ function waitForEvent(calendar: Window) {
       clearInterval(id);
     }
   }, 100);
-}
-
-function renderActiveTimer() {
-  const timer = getActiveTimer();
-  if (!timer) {
-    return (
-      <div id="active-timer" class="column is-two-thirds" hx-swap-oob="true">
-        <div class="card">
-          <header class="card-header">
-            <div class="card-header-title">No active timer</div>
-          </header>
-          <footer class="card-footer">
-            <div class="card-footer-item">
-              <button
-                type="button"
-                class="button is-primary"
-                hx-get="/ui/createTimer"
-                hx-target="#modal"
-              >
-                New Timer ➕
-              </button>
-            </div>
-          </footer>
-        </div>
-      </div>
-    );
-  }
-  const duration = (Date.now() - timer.activatedAt) / 1000;
-  const minutes = Math.floor(duration / 60);
-  const seconds = Math.floor(duration % 60);
-  return (
-    <div id="active-timer" class="column is-two-thirds" hx-swap-oob="true">
-      <div class="columns">
-        <div class="column">
-          <div class="card">
-            <header class="card-header">
-              <div class="card-header-title">Timer Duration</div>
-            </header>
-            <div
-              class="card-content"
-              hx-get="/timers/active"
-              hx-trigger="every 1s"
-            >
-              {minutes}m {seconds}s
-            </div>
-          </div>
-        </div>
-        <div class="column">
-          <div class="card">
-            <header class="card-header">
-              <div class="card-header-title">
-                <span class="tag is-light">#2</span>
-                {timer.title}
-              </div>
-            </header>
-            <footer class="card-footer">
-              <div class="card-footer-item">
-                <button
-                  type="button"
-                  class="button is-danger"
-                  hx-post={`/timers/${timer.id}/stop`}
-                >
-                  Stop
-                </button>
-              </div>
-            </footer>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function renderAllTimers() {
-  const timers = listTimers().sort(
-    (a, b) => b.activationCount - a.activationCount
-  );
-  if (!timers) {
-    return (
-      <div id="all-timers" class="columns is-multiline" hx-swap-oob="true" />
-    );
-  }
-
-  let timerCards = [];
-  for (const timer of timers) {
-    timerCards.push(
-      <TimerCard
-        id={timer.id}
-        title={timer.title}
-        activatedAt={timer.activatedAt}
-      />
-    );
-  }
-  // Add a "Create new timer" card at the end
-  timerCards.push(
-    <div class="column is-one-third">
-      <div class="card">
-        <header class="card-header">
-          <div class="card-header-title">No active timer</div>
-        </header>
-        <footer class="card-footer">
-          <div class="card-footer-item">
-            <button
-              type="button"
-              class="button is-primary"
-              hx-get="/ui/createTimer"
-              hx-target="#modal"
-            >
-              New Timer ➕
-            </button>
-          </div>
-        </footer>
-      </div>
-    </div>
-  );
-
-  return (
-    <div id="all-timers" class="columns is-multiline" hx-swap-oob="true">
-      {timerCards}
-    </div>
-  );
 }
