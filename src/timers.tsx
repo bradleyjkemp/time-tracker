@@ -81,6 +81,7 @@ server.respondWith("POST", "/timers/:id/stop", function (xhr, id) {
       "createevent",
       "directories=0,titlebar=0,toolbar=0,location=0,status=0,menubar=0,scrollbars=no,resizable=no,width=800,height=400"
     );
+    e.focus();
     waitForEvent(e);
   }
 
@@ -93,20 +94,26 @@ server.respondWith("POST", "/timers/:id/stop", function (xhr, id) {
 });
 
 function waitForEvent(calendar: Window) {
-  // This is super brittle but equals the number of iframes in a Calendar window
-  // after the user has clicked the "create event" button
-  const eventDone = 7;
-
   const id = setInterval(() => {
     if (calendar.closed) {
       // user closed the popup themselves
       clearInterval(id);
       return;
     }
-    if (calendar.length == eventDone) {
-      // we think the user has clicked the "create event" button and so we should close the popup for them
+
+    if (calendar.frames.length !== 7 && calendar.frames.length !== 9) {
+      // This is super brittle but equals the number of iframes in a Calendar window
+      // after the user has clicked the "create event" button.
+      // If there are a different number of frames then it's unlikely the user has clicked "Create Event"
+      // and so we shouldn't try to close the popup.
+      return;
+    }
+
+    if (document.hasFocus()) {
+      // assume the user is done with the popup
+      // (because they've come back to the time tracker)
       calendar.close();
       clearInterval(id);
     }
-  }, 100);
+  }, 500);
 }
